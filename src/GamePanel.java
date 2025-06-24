@@ -1,6 +1,7 @@
 package javagame.game3d.src;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
@@ -9,12 +10,15 @@ public class GamePanel extends JPanel implements Runnable {
     
     public Thread gameThread;
     public boolean isGameRunning;
+    public Draw draw;
 
-    int FPS = 60;
+    public int FPS = 60;
 
     public GamePanel() {
         
         setBackground(Color.BLACK);
+
+        draw = new Draw();
 
         isGameRunning = true;
         gameThread = new Thread(this);
@@ -33,7 +37,7 @@ public class GamePanel extends JPanel implements Runnable {
             nextDrawTime = System.nanoTime() + drawInterval;
 
             update();
-            System.out.println(System.nanoTime());
+            
             repaint();
 
             double remainingTime = nextDrawTime - System.nanoTime();
@@ -52,13 +56,13 @@ public class GamePanel extends JPanel implements Runnable {
 
     }
 
-    public void paintComponent(Graphics2D g2) {
+    public void paintComponent(Graphics g) {
         
-        super.paintComponent(g2);
+        super.paintComponent(g);
 
+        Graphics2D g2 = (Graphics2D) g;
 
-
-
+        draw.renderTriangles(g2);
 
         g2.dispose();
 

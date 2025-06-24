@@ -10,9 +10,9 @@ public class GameFrame {
     JFrame gameFrame;
     GamePanel gamePanel;
 
-    Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-    public int screenWidth = (int) dimension.getWidth();
-    public int screenHeight = (int) dimension.getHeight();
+    static Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+    public static float screenWidth = (float) dimension.getWidth();
+    public static float screenHeight = (float) dimension.getHeight();
 
     public GameFrame() {
     
