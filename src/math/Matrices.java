@@ -20,6 +20,39 @@ public class Matrices {
         };
     }
 
+    public static float[][] X_ROTATION_MATRIX(float theta) {
+        theta = (float) Math.toRadians(theta);
+
+        return new float[][] {
+            { 1 , 0                          , 0                         , 0 },
+            { 0 , (float) Math.cos(theta)  , (float) -Math.sin(theta) , 0 },
+            { 0 , (float) Math.sin(theta) , (float) Math.cos(theta) , 0 },
+            { 0 , 0                          , 0                         , 1 }
+        };
+    }
+
+    public static float[][] Y_ROTATION_MATRIX(float theta) {
+        theta = (float) Math.toRadians(theta);
+
+        return new float[][] {
+            { (float) Math.cos(theta)  , 0  , (float) Math.sin(theta) , 0 },
+            { 0                        , 1  , 0                       , 0 },
+            { (float) -Math.sin(theta) , 0  , (float) Math.cos(theta) , 0 },
+            { 0                        , 0  , 0                       , 1 }
+        };
+    }
+
+    public static float[][] Z_ROTATION_MATRIX(float theta) {
+        theta = (float) Math.toRadians(theta);
+
+        return new float[][] {
+            { (float) Math.cos(theta) , (float) -Math.sin(theta) , 0 , 0 },
+            { (float) Math.sin(theta) , (float) Math.cos(theta)  , 0 , 0 },
+            { 0                       , 0                        , 1 , 0 },
+            { 0                       , 0                        , 0 , 1 }
+        };
+    }
+
 
 
 
@@ -45,7 +78,6 @@ public class Matrices {
             product.x = product.x / w;
             product.y = product.y / w;
             product.z = product.z / w;
-
         }
 
         return product;
