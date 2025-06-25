@@ -53,6 +53,27 @@ public class Matrices {
         };
     }
 
+    public static Triangle RotateMatrixTriangleTransformation(Triangle tri, float thetaX, float thetaY, float thetaZ) {
+
+        Coordinate one = new Coordinate(tri.one.x, tri.one.y, tri.one.z);
+        Coordinate two = new Coordinate(tri.two.x, tri.two.y, tri.two.z);
+        Coordinate three = new Coordinate(tri.three.x, tri.three.y, tri.three.z);
+
+        one = Matrices.VectorMatrixMultiplication(one, Z_ROTATION_MATRIX(thetaZ));
+        two = Matrices.VectorMatrixMultiplication(two, Z_ROTATION_MATRIX(thetaZ));
+        three = Matrices.VectorMatrixMultiplication(three, Z_ROTATION_MATRIX(thetaZ));
+
+        one = Matrices.VectorMatrixMultiplication(one, Y_ROTATION_MATRIX(thetaY));
+        two = Matrices.VectorMatrixMultiplication(two, Y_ROTATION_MATRIX(thetaY));
+        three = Matrices.VectorMatrixMultiplication(three, Y_ROTATION_MATRIX(thetaY));
+
+        one = Matrices.VectorMatrixMultiplication(one, X_ROTATION_MATRIX(thetaX));
+        two = Matrices.VectorMatrixMultiplication(two, X_ROTATION_MATRIX(thetaX));
+        three = Matrices.VectorMatrixMultiplication(three, X_ROTATION_MATRIX(thetaX));
+
+        return new Triangle(one, two, three);
+    }
+
 
 
 
