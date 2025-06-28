@@ -2,6 +2,10 @@ package javagame.game3d.src;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.List;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Vector;
 
 import javagame.game3d.src.math.Camera;
 import javagame.game3d.src.math.Coordinate;
@@ -18,6 +22,8 @@ public class Draw {
     
     public void renderTriangles(Graphics2D g2) {
 
+        Vector<Triangle> mesh = new Vector<>();
+
         for(Triangle tri : cube.getMesh()) {
             
             Triangle rotTri = Matrices.RotateMatrixTriangleTransformation(tri, thetaX, thetaY, thetaZ);
@@ -27,9 +33,9 @@ public class Draw {
             thetaZ += 0.009; thetaY += 0.009; thetaX += 0.009;
 
 
-            one.z += 3.0f;
-            two.z += 3.0f;
-            three.z += 3.0f;
+            one.z += 0.05f;
+            two.z += 0.5f;
+            three.z += 0.5f;
 
 
             Coordinate normal = Coordinate.normalizedLine(one, two, three);
@@ -41,7 +47,17 @@ public class Draw {
             two = Matrices.VectorMatrixMultiplication(two, Matrices.PROJECTION_MATRIX());
             three = Matrices.VectorMatrixMultiplication(three, Matrices.PROJECTION_MATRIX());
 
+            mesh.addAll( Triangle.triangleClipping(rotTri) );
             
+            
+        }
+
+        for(Triangle tri : mesh) {
+
+            Coordinate one = tri.one;
+            Coordinate two = tri.two;
+            Coordinate three = tri.three;
+
             one.x += 1.0f; one.y += 1.0f;
             two.x += 1.0f; two.y += 1.0f;
             three.x += 1.0f; three.y += 1.0f;
