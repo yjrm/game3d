@@ -7,19 +7,28 @@ import javax.swing.JFrame;
 
 public class GameFrame {
 
-    JFrame gameFrame;
-    GamePanel gamePanel;
+    public static JFrame gameFrame;
+    public static GamePanel gamePanel;
+    public static KeyBoardInput keyBoard;
+    public static MouseInput mouse;
+    
 
-    static Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+    public static Toolkit toolkit = Toolkit.getDefaultToolkit();
+    public static Dimension dimension = toolkit.getScreenSize();
     public static float screenWidth = (float) dimension.getWidth();
     public static float screenHeight = (float) dimension.getHeight();
 
     public GameFrame() {
     
         gameFrame = new JFrame("3D Game");
-        gameFrame.setSize(dimension);
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+        keyBoard = new KeyBoardInput();
+        gameFrame.addKeyListener(keyBoard);
+        mouse = new MouseInput();
+        gameFrame.addMouseMotionListener(mouse);
+        gameFrame.addMouseListener(mouse);
 
         gamePanel = new GamePanel();
         gameFrame.add(gamePanel);

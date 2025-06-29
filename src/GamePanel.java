@@ -11,6 +11,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Thread gameThread;
     public boolean isGameRunning;
     public Draw draw;
+    public KeyBoardInput keyBoard;
 
     public int FPS = 60;
 
@@ -71,6 +72,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
 
+        GameFrame.keyBoard.update();
+        GameFrame.mouse.update();
     }
 
 

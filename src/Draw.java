@@ -2,9 +2,6 @@ package javagame.game3d.src;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.List;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Vector;
 
 import javagame.game3d.src.math.Camera;
@@ -15,40 +12,41 @@ import javagame.game3d.src.math.Triangle;
 
 public class Draw {
 
-    Cube cube = new Cube();
-    Camera camera = new Camera();
+    Cube cube;
+    public static Camera camera;
 
-    float thetaZ, thetaX, thetaY;
-    
+    public Draw() {
+        cube = new Cube();
+        camera = new Camera();
+    }
+
+
     public void renderTriangles(Graphics2D g2) {
 
         Vector<Triangle> mesh = new Vector<>();
 
         for(Triangle tri : cube.getMesh()) {
             
-            Triangle rotTri = Matrices.RotateMatrixTriangleTransformation(tri, thetaX, thetaY, thetaZ);
+            Triangle rotTri = Matrices.RotateMatrixTriangleTransformation(tri, cube.thetaX + camera.thetaX,
+                                                                        cube.thetaY + camera.thetaY,
+                                                                        cube.thetaZ + camera.thetaZ);
             Coordinate one = rotTri.one;
             Coordinate two = rotTri.two;
             Coordinate three = rotTri.three;
-            thetaZ += 0.009; thetaY += 0.009; thetaX += 0.009;
+           // cube.thetaZ += 0.009; cube.thetaY += 0.009; cube.thetaX += 0.009;
 
-
-            one.z += 0.05f;
-            two.z += 0.5f;
-            three.z += 0.5f;
+            camera.cameraTriangleTransformation(rotTri);            
 
 
             Coordinate normal = Coordinate.normalizedLine(one, two, three);
             if(normal.x * (one.x - camera.x) +
                normal.y * (one.y - camera.y) +
                normal.z * (one.z - camera.z) >= 0.0f) continue;
-
             one = Matrices.VectorMatrixMultiplication(one, Matrices.PROJECTION_MATRIX());
             two = Matrices.VectorMatrixMultiplication(two, Matrices.PROJECTION_MATRIX());
             three = Matrices.VectorMatrixMultiplication(three, Matrices.PROJECTION_MATRIX());
 
-            mesh.addAll( Triangle.triangleClipping(rotTri) );
-            
+            mesh.add( new Triangle(one, two, three));
             
         }
 
