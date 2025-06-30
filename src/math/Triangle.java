@@ -5,6 +5,7 @@ public class Triangle {
     public Coordinate one;
     public Coordinate two;
     public Coordinate three;
+    public float albedoValue;
 
     public Triangle(float x1, float y1, float z1,
             float x2, float y2, float z2,
