@@ -11,10 +11,14 @@ public class Camera extends Coordinate {
 
     
     // Keyboard Movement Speed
-    public static float zForwardSpeed = 0.04f;
-    public static float zBackwardSpeed = 0.03f;
-    public static float xSpeed = 0.01f;
-    public static float ySpeed = 0.03f;
+    // public static float zForwardSpeed = 0.04f;
+    // public static float zBackwardSpeed = 0.03f;
+    // public static float xSpeed = 0.01f;
+    // public static float ySpeed = 0.03f;
+    public static float zForwardSpeed = 0.02f;
+    public static float zBackwardSpeed = 0.01f;
+    public static float xSpeed = 0.005f;
+    public static float ySpeed = 0.01f;
 
     public void cameraTriangleTransformation(Triangle tri) {
 

@@ -32,8 +32,8 @@ public class Draw {
         for(Triangle tri : cube.getMesh()) {
             
             Triangle rotTri = Matrices.RotateMatrixTriangleTransformation(tri, cube.thetaX + camera.thetaX,
-                                                                        cube.thetaY + camera.thetaY,
-                                                                        cube.thetaZ + camera.thetaZ);
+                    cube.thetaY + camera.thetaY, cube.thetaZ + camera.thetaZ);
+                    
             Coordinate one = rotTri.one;
             Coordinate two = rotTri.two;
             Coordinate three = rotTri.three;
@@ -57,7 +57,8 @@ public class Draw {
 
 
 
-            mesh.add(toRender);
+            //mesh.add(toRender);
+            mesh.addAll( Triangle.triangleClipping(toRender) );
             
         }
 
