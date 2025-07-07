@@ -40,8 +40,12 @@ public class MouseInput implements MouseMotionListener, MouseListener {
     public void mouseMoved(MouseEvent e) {
 
         if(isGameFocused) {
-            Draw.camera.thetaX += (e.getYOnScreen() - centerY) / Camera.yAxisRotationFactor;
-            Draw.camera.thetaY += (e.getXOnScreen() - centerX) / Camera.xAxisRotationFactor;
+            float mouseLocation = 0.0f;
+            if(mouseLocation <= GameFrame.screenWidth/2) {
+                Draw.camera.fYaw -= (e.getXOnScreen() - centerX) / Camera.yAxisRotationFactor;
+            } else if(mouseLocation > GameFrame.screenWidth/2) {
+                Draw.camera.fYaw += (e.getXOnScreen() - centerX) / Camera.yAxisRotationFactor;
+            }
         }
 
     }

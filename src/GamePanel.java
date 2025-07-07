@@ -32,6 +32,9 @@ public class GamePanel extends JPanel implements Runnable {
 
         double drawInterval = 1000000000/FPS;
         double nextDrawTime;
+        
+        int FPS = 0;
+        double secondTime = System.nanoTime() + 1000000000;
 
         while(isGameRunning) {
 
@@ -44,15 +47,23 @@ public class GamePanel extends JPanel implements Runnable {
             double remainingTime = nextDrawTime - System.nanoTime();
             remainingTime *= 0.0000001;
 
+            
             if(remainingTime <= 0) continue;
-
-
+            
+            
             try {
                 Thread.sleep( (long) remainingTime);
             } catch(InterruptedException e) {
                 e.printStackTrace();
             }
-
+            
+            // Frames Per Second
+            if(secondTime <= System.nanoTime()) {
+                System.out.println("FPS: " + FPS);
+                secondTime = System.nanoTime() + 1000000000;
+                FPS = 0;
+            }
+            FPS++;
         }
 
     }

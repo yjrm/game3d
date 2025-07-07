@@ -22,7 +22,6 @@ public class Cube {
         triangles.add(new Triangle(0, 1, 0, 1, 1, 1, 1, 1, 0));
         triangles.add(new Triangle(1, 0, 1, 0, 0, 1, 0, 0, 0));
         triangles.add(new Triangle(1, 0, 1, 0, 0, 0, 1, 0, 0));
-
     }
 
 

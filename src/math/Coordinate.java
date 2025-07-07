@@ -2,7 +2,9 @@ package javagame.game3d.src.math;
 
 public class Coordinate {
     
-    public float x, y, z, w;
+    public float x, y, z;
+    public float w = 1.0f;
+    public float textureX, textureY;
 
     public Coordinate() {
         super();

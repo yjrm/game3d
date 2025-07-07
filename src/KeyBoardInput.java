@@ -4,6 +4,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javagame.game3d.src.math.Camera;
+import javagame.game3d.src.math.Coordinate;
+import javagame.game3d.src.math.Triangle;
 
 public class KeyBoardInput implements KeyListener {
 
@@ -63,11 +65,15 @@ public class KeyBoardInput implements KeyListener {
 
     public void update() {
 
+        Coordinate vForward = Triangle.vectorMul(Draw.camera.lookDirection, Draw.camera.zSpeed);
+
         if(forward) {
-            Draw.camera.z += Camera.zForwardSpeed;
+            Coordinate cam = Triangle.vectorAdd((Coordinate)Draw.camera, vForward);
+            Draw.camera.x = cam.x; Draw.camera.y = cam.y; Draw.camera.z = cam.z;
         }
         if(backward) {
-            Draw.camera.z -= Camera.zBackwardSpeed;
+            Coordinate cam = Triangle.vectorSub((Coordinate)Draw.camera, vForward);
+            Draw.camera.x = cam.x; Draw.camera.y = cam.y; Draw.camera.z = cam.z;
         }
         if(right) {
             Draw.camera.x += Camera.xSpeed;

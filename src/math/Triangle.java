@@ -2,17 +2,15 @@ package javagame.game3d.src.math;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javagame.game3d.src.Draw;
+import javagame.game3d.src.GameFrame;
 
 public class Triangle {
     
-    public Coordinate one;
-    public Coordinate two;
-    public Coordinate three;
+    public Coordinate one, two, three;
+    public Coordinate normal;
     public float albedoValue;
 
     public Triangle(float x1, float y1, float z1,
@@ -35,7 +33,6 @@ public class Triangle {
         System.out.println("\n\nCoordinate 1: x:" + one.x + " y:" + one.y + " z:" + one.z);
         System.out.println("Coordinate 2: x:" + two.x + " y:" + two.y + " z:" + two.z);
         System.out.println("Coordinate 3: x:" + three.x + " y:" + three.y + " z:" + three.z + "\n\n");
-
     }
 
     public Triangle copyTriangle() {
@@ -60,112 +57,167 @@ public class Triangle {
 
 
 
-    // Triangle must have been projected (x,y) coordinates in order for this method
 
 
 
-    // to function properly.
+    /*
+     * Unfortunately I was unable to create a clipping algorithm that was sufficient
+     * so I did some research and found a Youtuber called "javidx9" and used his java
+     * equivalent. 
+     * The video name is Code-It-Yourself! 3D Graphics Engine Part #3 - Cameras & Clipping
+     */
 
+    public static Coordinate normalizeVector(Coordinate v) {
+        float l = (float) Math.sqrt(Coordinate.dotProduct(v, v));
+        return new Coordinate(v.x/l, v.y/l, v.z/l);
+    }
 
-    public static List<Triangle> triangleClipping(Triangle givenTriangle) {
+    public static Coordinate vectorSub(Coordinate one, Coordinate two) {
+        return new Coordinate(one.x - two.x, one.y - two.y, one.z - two.z);
+    }
 
-        Triangle tri = givenTriangle.copyTriangle();
+    public static Coordinate vectorAdd(Coordinate one, Coordinate two) {
+        return new Coordinate(one.x + two.x, one.y + two.y, one.z + two.z);
+    }
 
-        //Lets make sure the triangles aren't in the camera:
-        if(tri.one.z <= Draw.camera.z || tri.two.z <= Draw.camera.z || tri.three.z <= Draw.camera.z) return Arrays.asList();
-        // No Need To Render Triangle:
-        if( tri.one.x < -1 && tri.two.x < -1 && tri.three.x < -1 ) return Arrays.asList();
-        if( tri.one.x > 1  && tri.two.x > 1  && tri.three.x > 1  ) return Arrays.asList();
-        if( tri.one.y < -1 && tri.two.y < -1 && tri.three.y < -1 ) return Arrays.asList();
-        if( tri.one.y > 1  && tri.two.y > 1  && tri.three.y > 1  ) return Arrays.asList();
-        // Triangle should be rendered as is:
-        if( isPointInNormalizedPlain(tri.one) 
-            && isPointInNormalizedPlain(tri.two) 
-            && isPointInNormalizedPlain(tri.three) ) {
-            return Arrays.asList(tri);
-        }
+    public static Coordinate vectorMul(Coordinate one, float k) {
+        return new Coordinate(one.x*k, one.y*k, one.z*k);
+    }
 
-        List<Coordinate> cords = new ArrayList<>();
-        // Find all the clipped coordinates for Coordinate one:
-        cords.addAll(findCoordinatesOfASide(tri.one, tri.two));
-        cords.addAll(findCoordinatesOfASide(tri.two, tri.three));
-        cords.addAll(findCoordinatesOfASide(tri.three, tri.one));
-        Collections.sort(cords, new Triangle.CoordinateComparing());
-        int size = cords.size();
-        if(size == 0)  {
-            return Arrays.asList(tri);
-        } else if(size == 3) {
-            Triangle clippedTri = new Triangle(cords.get(0), cords.get(1), cords.get(2));
-            return Arrays.asList(clippedTri);
-        }
-        float averageX = 0.0f;
-        float averageY = 0.0f;
-        for(int i = 0; i < size; i++) {
-            Coordinate c = cords.get(i);
-            averageX += c.x;
-            averageY += c.y;
-        }
-        averageX /= size;
-        averageY /= size;
-        Coordinate centroid = new Coordinate(averageX, averageY, 0);
+    public static Coordinate VectorIntersectPlane(Coordinate plane_p, Coordinate plane_n, Coordinate lineStart, Coordinate lineEnd) {
+        plane_n = normalizeVector(plane_n);
+        float plane_d = -Coordinate.dotProduct(plane_n, plane_p);
+        float ad = Coordinate.dotProduct(lineStart, plane_p);
+        float bd = Coordinate.dotProduct(lineEnd, plane_n);
+        float t = (-plane_d - ad) / (bd - ad);
+        Coordinate lineStartToEnd = vectorSub(lineEnd, lineStart);
+        Coordinate lineToIntersect = vectorMul(lineStartToEnd, t);
+        return vectorAdd(lineStartToEnd, lineToIntersect);
+    }
+
+    public static float dist(Coordinate c, Coordinate plane_n, Coordinate plane_p) {
+        Coordinate n = normalizeVector(c);
+        return (plane_n.x * c.x + plane_n.y * c.y + plane_n.z * c.z - Coordinate.dotProduct(plane_n, plane_p));
+    }
+
+    public static List<Triangle> clipping(Coordinate plane_p, Coordinate plane_n, Triangle tri) {
+        
         List<Triangle> triangles = new ArrayList<>();
-        for(int j = 1; j < size; j++) {
-            List<Coordinate> c = new ArrayList<>();
-            c.add(cords.get(j-1));
-            c.add(centroid);
-            c.add(cords.get(j));
-            Collections.sort(c, (p1, p2) -> {
-                    Coordinate c1 = (Coordinate) p1;
-                    Coordinate c2 = (Coordinate) p2;
-                    if(c2.x < c1.x) return 1;
-                    if(c2.y < c1.y) return 1;
-                    return -1;
-            });
-            triangles.add( new Triangle(c.getFirst(), c.getFirst(), c.getFirst()) );
+
+        plane_n = normalizeVector(plane_n);
+
+        Coordinate[] inside_points = new Coordinate[3]; int nInsidePointCount = 0;
+        Coordinate[] outside_points = new Coordinate[3]; int nOutsidePointCount = 0;
+
+        float d0 = dist(tri.one, plane_n, plane_p);
+        float d1 = dist(tri.two, plane_n, plane_p);
+        float d2 = dist(tri.three, plane_n, plane_p);
+
+        if (d0 >= 0) { 
+            inside_points[nInsidePointCount++] = tri.one;
         }
+		else { 
+            outside_points[nOutsidePointCount++] = tri.one; 
+        }
+		if (d1 >= 0) { 
+            inside_points[nInsidePointCount++] = tri.two; 
+        }
+		else { 
+            outside_points[nOutsidePointCount++] = tri.two; 
+        }
+		if (d2 >= 0) { 
+            inside_points[nInsidePointCount++] = tri.three; 
+        }
+		else { 
+            outside_points[nOutsidePointCount++] = tri.three; 
+        }
+
+        if(nInsidePointCount == 0) return Arrays.asList();
+
+        if(nInsidePointCount == 3) return Arrays.asList(tri);
+
+        if(nInsidePointCount == 1 && nOutsidePointCount == 2) {
+            
+            triangles.add(
+                new Triangle(
+                    inside_points[0],
+                    VectorIntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0]),
+                    VectorIntersectPlane(plane_p, plane_n, inside_points[0], outside_points[1])
+                )
+            );
+
+            triangles.getFirst().normal = tri.normal;
+
+            return triangles;
+
+        }
+
+        if(nInsidePointCount == 2 && nOutsidePointCount == 1) {
+            
+            triangles.add(
+                new Triangle(
+                    inside_points[0],
+                    inside_points[1],
+                    VectorIntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0])
+                )
+            );
+            triangles.getFirst().normal = tri.normal;
+
+            triangles.add( new Triangle(
+                inside_points[1],
+                VectorIntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0]),
+                VectorIntersectPlane(plane_p, plane_n, inside_points[1], outside_points[0])
+            ));
+            triangles.getLast().normal = tri.normal;
+
+            return triangles;
+
+        }
+
+
         return triangles;
     }
 
 
-    private static List<Coordinate> findCoordinatesOfASide(Coordinate one, Coordinate two) {
 
-        List<Coordinate> cords = new ArrayList<>();
 
-        float yIntersectN1 = (two.y - one.y)/(two.x - one.x) * (-1 - one.x) + one.y;
-        float yIntersectP1 = (two.y - one.y)/(two.x - one.x) * (1 - one.x) + one.y;
-        float xIntersectN1 = (-1 - one.y) * (two.x - one.x) / (two.y - one.y) + one.x;
-        float xIntersectP1 = (1 - one.y) * (two.x - one.x) / (two.y - one.y) + one.x;
 
-        Coordinate yN1 = new Coordinate(-1, yIntersectN1, 0);
-        Coordinate yP1 = new Coordinate(1, yIntersectP1, 0);
-        Coordinate xN1 = new Coordinate(xIntersectN1, -1, 0);
-        Coordinate xP1 = new Coordinate(xIntersectP1, 1, 0);
 
-        if(isPointInNormalizedPlain(yN1)) cords.add(yN1);
-        if(isPointInNormalizedPlain(yP1)) cords.add(yP1);
-        if(isPointInNormalizedPlain(xN1)) cords.add(xN1);
-        if(isPointInNormalizedPlain(xP1)) cords.add(xP1);
 
-        return cords;
-    }
+
+    /*
+     * This is the end of where the code equivalent was copied. 
+     */
+
 
     private static boolean isPointInNormalizedPlain(Coordinate cord) {
-        return (cord.x >= -1 && cord.x <= 1) && (cord.y >= -1 && cord.y <= 1);
+        return (cord.x >= -1.5f && cord.x <= 1.5f) && (cord.y >= -1.5f && cord.y <= 1.5f);
     }
 
-    // nested class:
-    public static class CoordinateComparing implements Comparator<Coordinate> {
+    public static Triangle normalizedToScreenTriangle(Triangle tri) {
 
-        @Override
-        public int compare(Coordinate o1, Coordinate o2) {
+        /*
+            * Whereas before the screen was normalized to + or -
+            * one in both width and height it is now + or - two;
+            */
+        tri.one.x += 1.0f;   tri.one.y += 1.0f;
+        tri.two.x += 1.0f;   tri.two.y += 1.0f;
+        tri.three.x += 1.0f; tri.three.y += 1.0f;
 
+        /*
+            * The normalized Coordinates are now multiplied by the 
+            * screen's dimensions in order to obtain the screen Coordinates
+            * of the Triangle to be rendered.
+            */
 
-            if(o1.x < o2.x) return -1;
-            if(o1.x > o2.x) return  1;
-            if(o1.y < o2.y) return -1;
-            if(o1.y > o2.y) return  1;
-            return 0;
-        }
+        tri.one.x   *= 0.5f * GameFrame.screenWidth;
+        tri.one.y   *= 0.5f * GameFrame.screenHeight;
+        tri.two.x   *= 0.5f * GameFrame.screenWidth;
+        tri.two.y   *= 0.5f * GameFrame.screenHeight;
+        tri.three.x *= 0.5f * GameFrame.screenWidth;
+        tri.three.y *= 0.5f * GameFrame.screenHeight;
+
+        return tri;
     }
 
 }

@@ -53,25 +53,30 @@ public class Matrices {
         };
     }
 
-    public static Triangle RotateMatrixTriangleTransformation(Triangle tri, float thetaX, float thetaY, float thetaZ) {
+    public static Triangle rotateMatrixTriangleTransformation(Triangle tri, float thetaX, float thetaY, float thetaZ) {
 
-        Coordinate one = new Coordinate(tri.one.x, tri.one.y, tri.one.z);
-        Coordinate two = new Coordinate(tri.two.x, tri.two.y, tri.two.z);
-        Coordinate three = new Coordinate(tri.three.x, tri.three.y, tri.three.z);
+        tri.one   = VectorMatrixMultiplication(tri.one, Z_ROTATION_MATRIX(thetaZ));
+        tri.two   = VectorMatrixMultiplication(tri.two, Z_ROTATION_MATRIX(thetaZ));
+        tri.three = VectorMatrixMultiplication(tri.three, Z_ROTATION_MATRIX(thetaZ));
 
-        one = Matrices.VectorMatrixMultiplication(one, Z_ROTATION_MATRIX(thetaZ));
-        two = Matrices.VectorMatrixMultiplication(two, Z_ROTATION_MATRIX(thetaZ));
-        three = Matrices.VectorMatrixMultiplication(three, Z_ROTATION_MATRIX(thetaZ));
+        tri.one   = VectorMatrixMultiplication(tri.one, Y_ROTATION_MATRIX(thetaY));
+        tri.two   = VectorMatrixMultiplication(tri.two, Y_ROTATION_MATRIX(thetaY));
+        tri.three = VectorMatrixMultiplication(tri.three, Y_ROTATION_MATRIX(thetaY));
 
-        one = Matrices.VectorMatrixMultiplication(one, Y_ROTATION_MATRIX(thetaY));
-        two = Matrices.VectorMatrixMultiplication(two, Y_ROTATION_MATRIX(thetaY));
-        three = Matrices.VectorMatrixMultiplication(three, Y_ROTATION_MATRIX(thetaY));
+        tri.one   = VectorMatrixMultiplication(tri.one, X_ROTATION_MATRIX(thetaX));
+        tri.two   = VectorMatrixMultiplication(tri.two, X_ROTATION_MATRIX(thetaX));
+        tri.three = VectorMatrixMultiplication(tri.three, X_ROTATION_MATRIX(thetaX));
+        
+        return tri;
+    }
 
-        one = Matrices.VectorMatrixMultiplication(one, X_ROTATION_MATRIX(thetaX));
-        two = Matrices.VectorMatrixMultiplication(two, X_ROTATION_MATRIX(thetaX));
-        three = Matrices.VectorMatrixMultiplication(three, X_ROTATION_MATRIX(thetaX));
+    public static Triangle projectMatrixTriangleTransformation(Triangle tri) {
 
-        return new Triangle(one, two, three);
+        tri.one   = VectorMatrixMultiplication(tri.one, PROJECTION_MATRIX());
+        tri.two   = VectorMatrixMultiplication(tri.two, PROJECTION_MATRIX());
+        tri.three = VectorMatrixMultiplication(tri.three, PROJECTION_MATRIX());
+
+        return tri;
     }
 
 
