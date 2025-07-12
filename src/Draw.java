@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import javagame.game3d.src.math.Camera;
@@ -20,7 +21,7 @@ public class Draw {
     public Mesh mesh;
 
     public Draw() {
-        mesh = new Mesh("javagame\\game3d\\meshes\\axis.obj");
+        mesh = new Mesh("javagame\\game3d\\meshes\\mountains.obj");
         camera = new Camera();
         lightSource = new Light();
     }
@@ -30,17 +31,15 @@ public class Draw {
         
         Vector<Triangle> triangles = new Vector<>();
 
+        Coordinate vUp = new Coordinate(0, 1, 0);
+        Coordinate vTarget = new Coordinate(0, 0, 1);
+        float[][] matCameraRot = Matrices.Y_ROTATION_MATRIX(camera.fYaw);
+        //matCameraRot = Camera.Matrix_MultiplyMatrix(matCameraRot, Matrices.X_ROTATION_MATRIX(camera.fXaw));
+        camera.vLookDir = Matrices.VectorMatrixMultiplication(vTarget, matCameraRot);
+        vTarget = Camera.Vector_Add(camera, camera.vLookDir);
 
-        /*
-         * This is apart of javidx9's tutorial for camera
-         * Note: I already implemented the camera, however, his way
-         * is more optimized.
-         */
-        // float[][] matView = Camera.cameraMovement();
-        /*
-         * Tutorial ends here
-         */
-
+        float[][] matCamera = Camera.Matrix_PointAt(camera, vTarget, vUp);
+        float[][] matView = Camera.Matrix_QuickInverse(matCamera);
 
         for(Triangle tri : mesh.getMesh()) {
 
@@ -62,29 +61,21 @@ public class Draw {
             if(DPCameraNormal >= 0.0f) continue;
 
             
-            // Apply the Projection Matrix to the Triangle
-            renderTri = Matrices.projectMatrixTriangleTransformation(renderTri);
+            renderTri.one = Matrices.VectorMatrixMultiplication(renderTri.one, matView);
+            renderTri.two = Matrices.VectorMatrixMultiplication(renderTri.two, matView);
+            renderTri.three = Matrices.VectorMatrixMultiplication(renderTri.three, matView);
 
-
-            /*
-            * This is apart of javidx9's tutorial for camera
-             * Note: I already implemented the camera, however, his way
-            * is more optimized.
-            */
-            // renderTri.one = Matrices.VectorMatrixMultiplication(renderTri.one, matView);
-            // renderTri.two = Matrices.VectorMatrixMultiplication(renderTri.two, matView);
-            // renderTri.three = Matrices.VectorMatrixMultiplication(renderTri.three, matView);
-            /*
-             * Tutorial ends here
-            */
-
-            triangles.add(renderTri);
             // Add renderable triangles to vector
-            // triangles.addAll(Triangle.clipping(
-            //     new Coordinate(0.0f, 0.0f, 0.1f),
-            //     new Coordinate(0.0f, 0.0f, 0.1f),
-            //     renderTri
-            // ));
+            List<Triangle> clipTri = Triangle.clipping(
+                new Coordinate(0.0f, 0.0f, 0.1f),
+                new Coordinate(0.0f, 0.0f, 1.0f),
+                renderTri
+            );
+            for(int i = 0; i < clipTri.size(); i++) {
+                triangles.add(Matrices.projectMatrixTriangleTransformation(clipTri.get(i)));
+                triangles.getLast().albedoValue = renderTri.albedoValue;
+                triangles.getLast().normal = renderTri.normal;
+            }
 
         } 
 
@@ -93,10 +84,15 @@ public class Draw {
             Triangle firstTri = (Triangle) o1;
             Triangle secondTri = (Triangle) o2;
 
-            float aveOneZ = (firstTri.one.z + firstTri.two.z + firstTri.three.z) / 3.0f;
-            float aveTwoZ = (secondTri.one.z + secondTri.two.z + secondTri.three.z) / 3.0f;
+            float aveOne = (firstTri.one.z + firstTri.two.z + firstTri.three.z) / 3.0f;
+            float aveTwo = (secondTri.one.z + secondTri.two.z + secondTri.three.z) / 3.0f;
 
-            return Float.compare(aveOneZ, aveTwoZ);
+            if(aveOne == aveTwo) {
+                aveOne = (firstTri.one.y + firstTri.two.y + firstTri.three.y) / 3.0f;
+                aveTwo = (secondTri.one.y + secondTri.two.y + secondTri.three.y) / 3.0f;
+            }
+
+            return Float.compare(aveOne, aveTwo);
         });
 
         for(Triangle renderTri : triangles) {
@@ -114,8 +110,8 @@ public class Draw {
             float blue  = (float) ( 255 * renderTri.albedoValue ) / 255;
             // Render the Triangle
             Color color = new Color(red, green, blue);
+            drawWireFrame(g2, renderTri, Color.BLACK);
             drawSolid(g2, renderTri, color);
-            drawWireFrame(g2, renderTri, Color.RED);
 
         }
 
@@ -128,7 +124,6 @@ public class Draw {
         g2.drawLine((int)tri.one.x, (int)tri.one.y, (int)tri.two.x, (int)tri.two.y);
         g2.drawLine((int)tri.two.x, (int)tri.two.y, (int)tri.three.x, (int)tri.three.y);
         g2.drawLine((int)tri.one.x, (int)tri.one.y, (int)tri.three.x, (int)tri.three.y);
-        g2.dispose();
     }
 
     private void drawSolid(Graphics2D g2, Triangle tri, Color color) {

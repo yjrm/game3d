@@ -17,7 +17,7 @@ public class Light extends Coordinate {
         switch(sDP) {
 
             case 0:
-                return 0.3f;
+                return 0.5f;
             case 1:
                 return 0.7f;
             case 2:
@@ -31,6 +31,6 @@ public class Light extends Coordinate {
 
         }
         
-        return 0.1f;
+        return 0.3f;
     }
 }

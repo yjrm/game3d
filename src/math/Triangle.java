@@ -92,7 +92,7 @@ public class Triangle {
         float t = (-plane_d - ad) / (bd - ad);
         Coordinate lineStartToEnd = vectorSub(lineEnd, lineStart);
         Coordinate lineToIntersect = vectorMul(lineStartToEnd, t);
-        return vectorAdd(lineStartToEnd, lineToIntersect);
+        return vectorAdd(lineStart, lineToIntersect);
     }
 
     public static float dist(Coordinate c, Coordinate plane_n, Coordinate plane_p) {

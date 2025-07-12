@@ -34,8 +34,8 @@ public class Mesh {
                     
                     cords.add(
                         new Coordinate(
-                            Float.parseFloat(sections[1]),
-                            Float.parseFloat(sections[2]),
+                            -Float.parseFloat(sections[1]),
+                            -Float.parseFloat(sections[2]),
                             Float.parseFloat(sections[3])
                         )
                     );

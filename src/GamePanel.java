@@ -13,7 +13,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Draw draw;
     public KeyBoardInput keyBoard;
 
-    public int FPS = 60;
+    public int FPS = 16;
 
     public GamePanel() {
         
@@ -33,7 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
         double drawInterval = 1000000000/FPS;
         double nextDrawTime;
         
-        int FPS = 0;
+        int fps = 0;
         double secondTime = System.nanoTime() + 1000000000;
 
         while(isGameRunning) {
@@ -59,11 +59,11 @@ public class GamePanel extends JPanel implements Runnable {
             
             // Frames Per Second
             if(secondTime <= System.nanoTime()) {
-                System.out.println("FPS: " + FPS);
+                System.out.println("FPS: " + fps);
                 secondTime = System.nanoTime() + 1000000000;
-                FPS = 0;
+                fps = 0;
             }
-            FPS++;
+            fps++;
         }
 
     }
